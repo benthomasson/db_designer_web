@@ -1,0 +1,43 @@
+app: view_fsm
+panX: 63.16958222635071
+panY: 51.70356743414999
+scaleXY: 1.0699999999999905
+states:
+- label: Start
+  size: 100
+  x: 477
+  y: 72
+- label: ViewReady
+  size: 100
+  x: 483
+  y: 317
+- label: Pan
+  size: 100
+  x: 762
+  y: 535
+- label: Scale
+  size: 100
+  x: 209
+  y: 545
+transitions:
+- from_state: Start
+  label: start
+  to_state: ViewReady
+- from_state: ViewReady
+  label: mouseDragged
+  to_state: Pan
+- from_state: ViewReady
+  label: mouseWheel
+  to_state: Scale
+- from_state: Pan
+  label: mouseWheel
+  to_state: ViewReady
+- from_state: Pan
+  label: count_down_done
+  to_state: ViewReady
+- from_state: Scale
+  label: mouseDragged
+  to_state: ViewReady
+- from_state: Scale
+  label: count_down_done
+  to_state: ViewReady

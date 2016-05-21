@@ -1,0 +1,30 @@
+app: button_fsm
+panX: 229
+panY: 150
+scaleXY: 1
+states:
+- label: NotPressed
+  size: 100
+  x: 263
+  y: 54
+- label: Clicked
+  size: 100
+  x: 67
+  y: 415
+- label: Pressed
+  size: 100
+  x: 460
+  y: 423
+transitions:
+- from_state: NotPressed
+  label: mousePressed
+  to_state: Pressed
+- from_state: Clicked
+  label: start
+  to_state: NotPressed
+- from_state: Pressed
+  label: mouseReleased
+  to_state: Clicked
+- from_state: Pressed
+  label: mouseOut
+  to_state: NotPressed
