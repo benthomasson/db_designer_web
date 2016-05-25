@@ -31,10 +31,24 @@ setup(
     package_dir={'db_designer_web': 'db_designer_web'},
     include_package_data=True,
     install_requires=[
+        'gevent==1.1b4',
+        'bottle',
+        'docopt',
+        'python-daemon',
+        'psutil',
+        'lockfile',
+        'pidfile',
+        'pyyaml',
+        'jinja2',
     ],
     license="BSD",
     zip_safe=False,
     keywords='db_designer_web',
+    entry_points={
+        'console_scripts': [
+            'db-designer-web = db_designer_web.cli:main',
+        ]
+    },
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

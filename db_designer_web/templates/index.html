@@ -1,0 +1,21 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style> body {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      } </style>
+</head>
+<body>
+</body>
+<script language="javascript" type="text/javascript">
+    var db_to_load = {%if db_to_load is defined%}{{db_to_load}}{%else%}null{%endif%}
+</script>
+<script language="javascript" type="text/javascript" src="/static/vendor/p5.js"></script>
+<script language="javascript" type="text/javascript" src="/static/vendor/socket.io.min.js"></script>
+<script language="javascript" type="text/javascript" src="/static/bundle.js"></script>
+<script language="javascript" type="text/javascript" src="/static/sketch.js"></script>
+</html>
