@@ -1,0 +1,8 @@
+var TEXT_SIZE = 12
+var SELECTED_COLOR = '#66FFFF'
+var COLOR = '#333333'
+var FILL = '#B9B9B9'
+exports.TEXT_SIZE = TEXT_SIZE
+exports.SELECTED_COLOR = SELECTED_COLOR
+exports.COLOR = COLOR
+exports.FILL = FILL

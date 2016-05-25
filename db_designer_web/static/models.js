@@ -1,0 +1,5 @@
+var fsm = require('./fsm.js')
+var settings = require('./settings.js')
+var widgets = require('./widgets.js')
+var view_fsm = require('./view_fsm.js')
+var menu_fsm = require('./menu_fsm.js')
