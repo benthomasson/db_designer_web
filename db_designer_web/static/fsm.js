@@ -17,10 +17,25 @@ Controller.prototype.changeState = function (state) {
     }
 }
 function _State () {
-    _State.prototype.start = function (controller) {
-    }
-    _State.prototype.end = function (controller) {
-    }
+}
+_State.prototype.start = function (controller) {
+}
+_State.prototype.end = function (controller) {
+}
+_State.prototype.mousePressed = function (controller) {
+}
+_State.prototype.mouseWheel = function (controller) {
+}
+_State.prototype.mouseDragged = function (controller) {
+}
+_State.prototype.mouseReleased = function (controller) {
+}
+_State.prototype.keyTyped = function (controller) {
+}
+_State.prototype.keyPressed = function (controller) {
+    controller.next_controller.state.keyPressed(controller)
+}
+_State.prototype.keyReleased = function (controller) {
 }
 var State = new _State()
 exports.State = State
@@ -84,15 +99,35 @@ inherits(_Ready, _State)
 
 _Ready.prototype.mousePressed = function (controller) {
 
-    controller.changeState(SelectedColumn)
+    controller.application.select_item()
+    if (controller.application.selected_property != null) {
+        controller.changeState(EditProperty)
+    } else {
+        controller.next_controller.state.mousePressed(controller.next_controller)
+    }
 
-    controller.changeState(SelectedForeignKey)
+    //controller.changeState(SelectedColumn)
 
-    controller.changeState(Selected)
+    //controller.changeState(SelectedForeignKey)
 
-    controller.changeState(EditProperty)
+    //controller.changeState(Selected)
 }
 _Ready.prototype.mousePressed.transitions = ['SelectedColumn', 'SelectedForeignKey', 'Selected', 'EditProperty']
+
+
+_Ready.prototype.mouseWheel = function (controller, event) {
+    controller.next_controller.state.mouseWheel(controller.next_controller, event)
+}
+
+_Ready.prototype.mouseDragged = function (controller) {
+    controller.next_controller.state.mouseDragged(controller.next_controller)
+}
+
+_Ready.prototype.mouseReleased = function (controller) {
+    controller.next_controller.state.mouseReleased(controller.next_controller)
+}
+
+
 
 var Ready = new _Ready()
 exports.Ready = Ready
@@ -214,22 +249,52 @@ function _EditProperty () {
 }
 inherits(_EditProperty, _State)
 
-_EditProperty.prototype.mousePressed = function (controller) {
+_EditProperty.prototype.start = function (controller) {
+    controller.application.selected_property.edit = true
+}
 
+_EditProperty.prototype.end = function (controller) {
+    controller.application.selected_property.object[controller.application.selected_property.property] = controller.application.selected_property.label
+    controller.application.selected_property.edit = false
+    controller.application.selected_property.selected = false
+    controller.application.selected_property = null
+}
+
+_EditProperty.prototype.keyTyped = function (controller) {
+    if (this.handle_special_keys(controller)) {
+        // do nothing
+    } else {
+        controller.application.selected_property.label += key
+    }
+}
+_Edit.prototype.keyTyped.transitions = ['Selected']
+
+_EditProperty.prototype.mousePressed = function (controller) {
     controller.changeState(Ready)
+    controller.state.mousePressed(controller)
 }
 _EditProperty.prototype.mousePressed.transitions = ['Ready']
 
 _EditProperty.prototype.handle_special_keys = function (controller) {
-
-    controller.changeState(Ready)
+    if (keyCode === RETURN) {
+        controller.changeState(Ready)
+        return true
+    } else if (keyCode === ENTER) {
+        controller.changeState(Ready)
+        return true
+    } else if (keyCode === BACKSPACE) {
+        controller.application.selected_property.label = controller.application.selected_property.label.substring(0, controller.application.selected_property.label.length - 1)
+        return true
+    } else if (keyCode === DELETE) {
+        controller.application.selected_property.label = controller.application.selected_property.label.substring(0, controller.application.selected_property.label.length - 1)
+        return true
+    } else {
+        return false
+    }
 }
 _EditProperty.prototype.handle_special_keys.transitions = ['Ready']
 
-_EditProperty.prototype.keyPressed = function (controller) {
-
-    controller.changeState(Ready)
-}
+_EditProperty.prototype.keyPressed = _EditProperty.prototype.handle_special_keys
 _EditProperty.prototype.keyPressed.transitions = ['Ready']
 
 var EditProperty = new _EditProperty()

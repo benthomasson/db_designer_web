@@ -1,4 +1,4 @@
-/* global main */
+/* global main db_to_load*/
 console.log(main)
 
 var application = new main.models.Application()
@@ -12,9 +12,14 @@ socket.on('saved', function (message) {
 function setup () {
     createCanvas(windowWidth, windowHeight)
     noCursor()
+    application.db_to_load = db_to_load
 }
 
 function draw () {
+    if (application.db_to_load) {
+        application.load_db(db_to_load)
+        application.db_to_load = null
+    }
     clear()
     push()
     application.mousePX = (mouseX - application.panX) / application.scaleXY
@@ -41,32 +46,49 @@ function draw () {
         line(application.mousePX - 10, application.mousePY, application.mousePX + 10, application.mousePY)
         line(application.mousePX, application.mousePY - 10, application.mousePX, application.mousePY + 10)
     }
+    if (application.loop_count_down < 0) {
+        noLoop()
+        application.loop_count_down = 60
+    } else {
+        application.loop_count_down += -1
+    }
 }
 
 function windowResized () {
+    loop()
     resizeCanvas(windowWidth, windowHeight)
 }
 
 function mouseWheel (event) {
+    loop()
     application.mouseWheel(event)
     return false
 }
 
 function mousePressed () {
+    loop()
     application.mousePressed()
     return false
 }
 
 function mouseReleased () {
+    loop()
     application.mouseReleased()
 }
 
+function mouseMoved () {
+    loop()
+    return false
+}
+
 function mouseDragged () {
+    loop()
     application.mouseDragged()
     return false
 }
 
 function keyTyped () {
+    loop()
     try {
         application.keyTyped()
     } catch (err) {
@@ -76,18 +98,20 @@ function keyTyped () {
 }
 
 function keyPressed () {
+    loop()
     try {
         application.keyPressed()
     } catch (err) {
         console.log(err)
     }
-    // Prevent Chrome from using backspace for go to the last page.
+    // Prevent Chrome from using backspace to go to the last page.
     if (keyCode === BACKSPACE) {
         return false
     }
 }
 
 function keyReleased () {
+    loop()
     application.keyReleased()
 }
 

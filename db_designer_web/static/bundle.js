@@ -3,7 +3,7 @@ var inherits = require('inherits')
 
 function Controller () {
     this.state = null
-
+    this.call_back = null
 }
 exports.Controller = Controller
 
@@ -18,10 +18,18 @@ Controller.prototype.changeState = function (state) {
     }
 }
 function _State () {
-    _State.prototype.start = function (controller) {
-    }
-    _State.prototype.end = function (controller) {
-    }
+}
+_State.prototype.start = function (controller) {
+}
+_State.prototype.end = function (controller) {
+}
+_State.prototype.mouseOut = function (controller) {
+}
+_State.prototype.mouseOver = function (controller) {
+}
+_State.prototype.mousePressed = function (controller) {
+}
+_State.prototype.mouseReleased = function (controller) {
 }
 var State = new _State()
 exports.State = State
@@ -32,7 +40,6 @@ function _NotPressed () {
 inherits(_NotPressed, _State)
 
 _NotPressed.prototype.mousePressed = function (controller) {
-
     controller.changeState(Pressed)
 }
 _NotPressed.prototype.mousePressed.transitions = ['Pressed']
@@ -45,7 +52,9 @@ function _Clicked () {
 inherits(_Clicked, _State)
 
 _Clicked.prototype.start = function (controller) {
-
+    if (controller.call_back) {
+        controller.call_back(controller)
+    }
     controller.changeState(NotPressed)
 }
 _Clicked.prototype.start.transitions = ['NotPressed']
@@ -57,14 +66,19 @@ function _Pressed () {
 }
 inherits(_Pressed, _State)
 
-_Pressed.prototype.mouseReleased = function (controller) {
+_Pressed.prototype.start = function (controller) {
+    controller.pressed = true
+}
+_Pressed.prototype.end = function (controller) {
+    controller.pressed = false
+}
 
+_Pressed.prototype.mouseReleased = function (controller) {
     controller.changeState(Clicked)
 }
 _Pressed.prototype.mouseReleased.transitions = ['Clicked']
 
 _Pressed.prototype.mouseOut = function (controller) {
-
     controller.changeState(NotPressed)
 }
 _Pressed.prototype.mouseOut.transitions = ['NotPressed']
@@ -93,10 +107,25 @@ Controller.prototype.changeState = function (state) {
     }
 }
 function _State () {
-    _State.prototype.start = function (controller) {
-    }
-    _State.prototype.end = function (controller) {
-    }
+}
+_State.prototype.start = function (controller) {
+}
+_State.prototype.end = function (controller) {
+}
+_State.prototype.mousePressed = function (controller) {
+}
+_State.prototype.mouseWheel = function (controller) {
+}
+_State.prototype.mouseDragged = function (controller) {
+}
+_State.prototype.mouseReleased = function (controller) {
+}
+_State.prototype.keyTyped = function (controller) {
+}
+_State.prototype.keyPressed = function (controller) {
+    controller.next_controller.state.keyPressed(controller)
+}
+_State.prototype.keyReleased = function (controller) {
 }
 var State = new _State()
 exports.State = State
@@ -160,15 +189,35 @@ inherits(_Ready, _State)
 
 _Ready.prototype.mousePressed = function (controller) {
 
-    controller.changeState(SelectedColumn)
+    controller.application.select_item()
+    if (controller.application.selected_property != null) {
+        controller.changeState(EditProperty)
+    } else {
+        controller.next_controller.state.mousePressed(controller.next_controller)
+    }
 
-    controller.changeState(SelectedForeignKey)
+    //controller.changeState(SelectedColumn)
 
-    controller.changeState(Selected)
+    //controller.changeState(SelectedForeignKey)
 
-    controller.changeState(EditProperty)
+    //controller.changeState(Selected)
 }
 _Ready.prototype.mousePressed.transitions = ['SelectedColumn', 'SelectedForeignKey', 'Selected', 'EditProperty']
+
+
+_Ready.prototype.mouseWheel = function (controller, event) {
+    controller.next_controller.state.mouseWheel(controller.next_controller, event)
+}
+
+_Ready.prototype.mouseDragged = function (controller) {
+    controller.next_controller.state.mouseDragged(controller.next_controller)
+}
+
+_Ready.prototype.mouseReleased = function (controller) {
+    controller.next_controller.state.mouseReleased(controller.next_controller)
+}
+
+
 
 var Ready = new _Ready()
 exports.Ready = Ready
@@ -290,22 +339,52 @@ function _EditProperty () {
 }
 inherits(_EditProperty, _State)
 
-_EditProperty.prototype.mousePressed = function (controller) {
+_EditProperty.prototype.start = function (controller) {
+    controller.application.selected_property.edit = true
+}
 
+_EditProperty.prototype.end = function (controller) {
+    controller.application.selected_property.object[controller.application.selected_property.property] = controller.application.selected_property.label
+    controller.application.selected_property.edit = false
+    controller.application.selected_property.selected = false
+    controller.application.selected_property = null
+}
+
+_EditProperty.prototype.keyTyped = function (controller) {
+    if (this.handle_special_keys(controller)) {
+        // do nothing
+    } else {
+        controller.application.selected_property.label += key
+    }
+}
+_Edit.prototype.keyTyped.transitions = ['Selected']
+
+_EditProperty.prototype.mousePressed = function (controller) {
     controller.changeState(Ready)
+    controller.state.mousePressed(controller)
 }
 _EditProperty.prototype.mousePressed.transitions = ['Ready']
 
 _EditProperty.prototype.handle_special_keys = function (controller) {
-
-    controller.changeState(Ready)
+    if (keyCode === RETURN) {
+        controller.changeState(Ready)
+        return true
+    } else if (keyCode === ENTER) {
+        controller.changeState(Ready)
+        return true
+    } else if (keyCode === BACKSPACE) {
+        controller.application.selected_property.label = controller.application.selected_property.label.substring(0, controller.application.selected_property.label.length - 1)
+        return true
+    } else if (keyCode === DELETE) {
+        controller.application.selected_property.label = controller.application.selected_property.label.substring(0, controller.application.selected_property.label.length - 1)
+        return true
+    } else {
+        return false
+    }
 }
 _EditProperty.prototype.handle_special_keys.transitions = ['Ready']
 
-_EditProperty.prototype.keyPressed = function (controller) {
-
-    controller.changeState(Ready)
-}
+_EditProperty.prototype.keyPressed = _EditProperty.prototype.handle_special_keys
 _EditProperty.prototype.keyPressed.transitions = ['Ready']
 
 var EditProperty = new _EditProperty()
@@ -375,7 +454,7 @@ function _Load () {
 inherits(_Load, _State)
 
 _Load.prototype.start = function (controller) {
-
+    window.open('/static/upload.html', '_self')
     controller.changeState(MenuReady)
 }
 _Load.prototype.start.transitions = ['MenuReady']
@@ -445,6 +524,59 @@ _MenuReady.prototype.new_column_button = function (controller) {
 }
 _MenuReady.prototype.new_column_button.transitions = ['NewColumn']
 
+
+_MenuReady.prototype.mousePressed = function (controller) {
+    var widget = null
+    if (controller.application.show_menu) {
+        for (var i = 0; i < controller.application.active_widgets.length; i++) {
+            widget = controller.application.active_widgets[i]
+            if (mouseX > widget.left_extent() &&
+                    mouseX < widget.right_extent() &&
+                    mouseY > widget.top_extent() &&
+                    mouseY < widget.bottom_extent()) {
+                widget.mousePressed()
+                return
+            }
+        }
+    }
+    controller.next_controller.state.mousePressed(controller.next_controller)
+}
+
+
+_MenuReady.prototype.mouseReleased = function (controller) {
+    var widget = null
+    if (controller.application.show_menu) {
+        for (var i = 0; i < controller.application.active_widgets.length; i++) {
+            widget = controller.application.active_widgets[i]
+            if (mouseX > widget.left_extent() &&
+                    mouseX < widget.right_extent() &&
+                    mouseY > widget.top_extent() &&
+                    mouseY < widget.bottom_extent()) {
+                widget.mouseReleased()
+            }
+        }
+    }
+    controller.next_controller.state.mouseReleased(controller.next_controller)
+}
+
+_MenuReady.prototype.mouseWheel = function (controller, event) {
+    controller.next_controller.state.mouseWheel(controller.next_controller, event)
+}
+_MenuReady.prototype.mouseDragged = function (controller) {
+    controller.next_controller.state.mouseDragged(controller.next_controller)
+}
+_MenuReady.prototype.keyTyped = function (controller) {
+    controller.next_controller.state.keyTyped(controller.next_controller)
+}
+_MenuReady.prototype.keyPressed = function (controller) {
+    controller.next_controller.state.keyPressed(controller.next_controller)
+}
+_MenuReady.prototype.keyReleased = function (controller) {
+    controller.next_controller.state.keyReleased(controller.next_controller)
+}
+
+
+
 var MenuReady = new _MenuReady()
 exports.MenuReady = MenuReady
 
@@ -478,8 +610,14 @@ function _Save () {
 }
 inherits(_Save, _State)
 
-_Save.prototype.on_saved = function (controller) {
+_Save.prototype.start = function (controller) {
+    console.log(controller.application.exportDB())
+    controller.application.socket.emit('save', controller.application.exportDB())
+}
 
+_Save.prototype.on_saved = function (controller, message) {
+    console.log(message)
+    controller.application.last_saved_url = message.url
     controller.changeState(Saved)
 }
 _Save.prototype.on_saved.transitions = ['Saved']
@@ -492,7 +630,10 @@ function _Saved () {
 inherits(_Saved, _State)
 
 _Saved.prototype.start = function (controller) {
-
+    if (controller.application.last_saved_url != null) {
+        window.open(controller.application.last_saved_url)
+        controller.application.last_saved_url = null
+    }
     controller.changeState(MenuReady)
 }
 _Saved.prototype.start.transitions = ['MenuReady']
@@ -520,6 +661,307 @@ var settings = require('./settings.js')
 var widgets = require('./widgets.js')
 var view_fsm = require('./view_fsm.js')
 var menu_fsm = require('./menu_fsm.js')
+
+function Application () {
+    this.main_controller = new fsm.Controller()
+    this.main_controller.application = this
+    this.main_controller.changeState(fsm.Start)
+    this.view_controller = new view_fsm.Controller()
+    this.view_controller.application = this
+    this.view_controller.changeState(view_fsm.Start)
+    var menu_controller = this.menu_controller = new menu_fsm.Controller()
+    this.menu_controller.application = this
+    this.menu_controller.changeState(menu_fsm.Start)
+    this.menu_controller.next_controller = this.main_controller
+    this.main_controller.next_controller = this.view_controller
+    this.loop_count_down = 60
+    this.db_to_load = null
+    this.socket = null
+    this.states = []
+    this.transitions = []
+    this.panX = 0
+    this.panY = 0
+    this.oldPanX = 0
+    this.oldPanY = 0
+    this.scaleXY = 1.0
+    this.oldScaleXY = 0
+    this.mousePressedX = 0
+    this.mousePressedY = 0
+    this.lastKeyCode = 0
+    this.state = null
+    this.wheel = null
+    this.selected_state = null
+    this.selected_transition = null
+    this.selected_property = null
+    this.debug = true
+    this.show_menu = true
+    this.show_pointer = true
+    this.active_widgets = []
+    this.properties = []
+    this.model = null
+    this.app = null
+    this.directory = null
+    this.NewStatePointer = new widgets.NewStatePointer()
+    this.NewTransitionPointer = new widgets.NewTransitionPointer()
+    this.MoveMousePointer = new widgets.MoveMousePointer()
+    this.MagnifyingGlassMousePointer = new widgets.MagnifyingGlassMousePointer()
+    this.ArrowMousePointer = new widgets.ArrowMousePointer()
+    this.pointer_count_down = null
+    this.mousePointer = this.ArrowMousePointer
+
+    var load_button = new widgets.Button()
+    var save_button = new widgets.Button()
+    var new_table_button = new widgets.Button()
+    var new_fkey_button = new widgets.Button()
+    this.bar = new widgets.ButtonBar()
+    this.bar.buttons.push(load_button)
+    this.bar.buttons.push(save_button)
+    this.bar.buttons.push(new_table_button)
+    this.bar.buttons.push(new_fkey_button)
+
+    this.active_widgets.push(load_button)
+    this.active_widgets.push(save_button)
+    this.active_widgets.push(new_table_button)
+    this.active_widgets.push(new_fkey_button)
+
+    load_button.label = 'Load'
+    save_button.label = 'Save'
+    new_table_button.label = 'New Table'
+    new_fkey_button.label = 'New Foreign Key'
+
+    load_button.call_back = function () {
+        menu_controller.state.load_button(menu_controller)
+    }
+    save_button.call_back = function () {
+        menu_controller.state.save_button(menu_controller)
+    }
+    new_table_button.call_back = function () {
+        menu_controller.state.new_table_button(menu_controller)
+    }
+    new_fkey_button.call_back = function () {
+        menu_controller.state.new_fkey_button(menu_controller)
+    }
+
+    this.bar.x = 10
+    this.bar.y = 60
+    this.last_saved_url = null
+
+    this.app_property_field = new widgets.TextField()
+    this.app_property_field.x = 10
+    this.app_property_field.y = 10
+    this.app_property_field.label = 'db'
+    this.app_property_field.object = this
+    this.app_property_field.property = 'app'
+
+    this.properties.push(this.app_property_field)
+}
+
+Application.prototype.remove_state = function (state) {
+    var index = this.states.indexOf(state)
+    if (index > -1) {
+        this.states.splice(index, 1)
+    }
+    var i = 0
+    var transition = null
+    var transitions = this.transitions.slice(0)
+
+    for (i = 0; i < transitions.length; i++) {
+        transition = transitions[i]
+        if (transition.to_state === state) {
+            this.remove_transition(transition)
+        }
+        if (transition.from_state === state) {
+            this.remove_transition(transition)
+        }
+    }
+}
+
+Application.prototype.remove_transition = function (transitions) {
+    var index = this.transitions.indexOf(transitions)
+    if (index > -1) {
+        this.transitions.splice(index, 1)
+    }
+}
+
+Application.prototype.get_state_by_name = function (name) {
+    var i = 0
+    var state = null
+
+    for (i = 0; i < this.states.length; i++) {
+        state = this.states[i]
+        if (state.label === name) {
+            return state
+        }
+    }
+
+    return null
+}
+
+Application.prototype.load_db = function (db_to_load) {
+
+    console.log(db_to_load)
+
+    if (typeof db_to_load.panX !== 'undefined') {
+        this.panX = db_to_load.panX
+    }
+    if (typeof db_to_load.panY !== 'undefined') {
+        this.panY = db_to_load.panY
+    }
+    if (typeof db_to_load.scaleXY !== 'undefined') {
+        this.scaleXY = db_to_load.scaleXY
+    }
+
+    if (typeof db_to_load.app !== 'undefined') {
+        this.app = db_to_load.app
+        this.app_property_field.label = db_to_load.app
+    }
+
+}
+
+Application.prototype.on_saved = function (message) {
+    this.menu_controller.state.on_saved(this.menu_controller, message)
+}
+
+Application.prototype.exportDB = function () {
+    return {panX: this.panX,
+            panY: this.panY,
+            scaleXY: this.scaleXY,
+            app: this.app === null ? 'db' : this.app }
+}
+
+Application.prototype.scaleAndPan = function () {
+    translate(this.panX, this.panY)
+    scale(this.scaleXY)
+}
+
+
+Application.prototype.select_item = function () {
+    this.clear_selections()
+    if (this.select_property()) {
+        return true
+    }
+}
+
+Application.prototype.clear_selections = function () {
+    var i = 0
+    var property = null
+    for (i = 0; i < this.properties.length; i++) {
+        property = this.properties[i]
+        property.selected = false
+    }
+}
+
+Application.prototype.select_property = function () {
+    this.selected_property = null
+    var i = 0
+    var property = null
+    for (i = 0; i < this.properties.length; i++) {
+        property = this.properties[i]
+        if (property.is_selected(this)) {
+            property.selected = true
+            this.selected_property = property
+            return true
+        } else {
+            property.selected = false
+        }
+    }
+    return false
+}
+
+Application.prototype.save = function (button) {
+}
+
+Application.prototype.load = function (button) {
+}
+
+Application.prototype.generate = function (button) {
+}
+
+Application.prototype.validate = function (button) {
+}
+
+Application.prototype.draw_content = function (controller) {
+}
+
+Application.prototype.draw_menus = function (controller) {
+    if (this.show_menu) {
+        this.bar.draw(controller)
+        this.app_property_field.draw(controller)
+    }
+    if (this.debug) {
+        var from_right = 20
+        noStroke()
+        fill(0)
+        var fps_string = 'fps: ' + frameRate().toFixed(0)
+        text(fps_string, width - (from_right * textSize()), textSize())
+        text('main state:' + this.main_controller.state.constructor.name, width - (from_right * textSize()), textSize() * 2)
+        text('menu state:' + this.menu_controller.state.constructor.name, width - (from_right * textSize()), textSize() * 3)
+        text('view state:' + this.view_controller.state.constructor.name, width - (from_right * textSize()), textSize() * 4)
+        text('pcd:' + this.pointer_count_down, width - (from_right * textSize()), textSize() * 5)
+        text('X, Y:' + mouseX + ', ' + mouseY, width - (from_right * textSize()), textSize() * 6)
+        text('PX, PY:' + this.mousePX + ', ' + this.mousePY, width - (from_right * textSize()), textSize() * 7)
+        text('key:' + key, width - (from_right * textSize()), textSize() * 8)
+        text('keyCode:' + keyCode, width - (from_right * textSize()), textSize() * 9)
+        text('mp:' + this.mousePointer.constructor.name, width - (from_right * textSize()), textSize() * 10)
+        text('panX, panY:' + this.panX + ', ' + this.panY, width - (from_right * textSize()), textSize() * 11)
+        text('scaleXY:' + this.scaleXY, width - (from_right * textSize()), textSize() * 12)
+        text('lcd:' + this.loop_count_down, width - (from_right * textSize()), textSize() * 13)
+    }
+
+    if (this.pointer_count_down === null) {
+        // do nothing
+    } else if (this.pointer_count_down <= 1) {
+        this.view_controller.state.count_down_done(this.view_controller)
+        this.mousePointer = this.ArrowMousePointer
+        this.pointer_count_down = null
+    } else {
+        this.pointer_count_down -= 1
+    }
+
+    if (this.mousePointer && this.show_pointer) {
+        this.mousePointer.draw(this)
+    }
+
+    var widget = null
+
+    if (this.show_menu) {
+        for (var i = 0; i < controller.active_widgets.length; i++) {
+            widget = controller.active_widgets[i]
+            if (mouseX > widget.left_extent() &&
+                    mouseX < widget.right_extent() &&
+                    mouseY > widget.top_extent() &&
+                    mouseY < widget.bottom_extent()) {
+                widget.mouseOver()
+            } else {
+                widget.mouseOut()
+                widget.mouseReleased()
+            }
+        }
+    }
+}
+
+Application.prototype.mouseWheel = function (event) {
+    this.menu_controller.state.mouseWheel(this.menu_controller, event)
+}
+Application.prototype.mouseDragged = function () {
+    this.menu_controller.state.mouseDragged(this.menu_controller)
+}
+Application.prototype.mousePressed = function () {
+    this.menu_controller.state.mousePressed(this.menu_controller)
+}
+Application.prototype.mouseReleased = function () {
+    this.menu_controller.state.mouseReleased(this.menu_controller)
+}
+Application.prototype.keyTyped = function () {
+    this.menu_controller.state.keyTyped(this.menu_controller)
+}
+Application.prototype.keyPressed = function () {
+    this.menu_controller.state.keyPressed(this.menu_controller)
+}
+Application.prototype.keyReleased = function () {
+    this.menu_controller.state.keyReleased(this.menu_controller)
+}
+exports.Application = Application
 
 },{"./fsm.js":2,"./menu_fsm.js":4,"./settings.js":7,"./view_fsm.js":8,"./widgets.js":9}],6:[function(require,module,exports){
 if (typeof Object.create === 'function') {
@@ -561,7 +1003,6 @@ var inherits = require('inherits')
 
 function Controller () {
     this.state = null
-
 }
 exports.Controller = Controller
 
@@ -576,10 +1017,18 @@ Controller.prototype.changeState = function (state) {
     }
 }
 function _State () {
-    _State.prototype.start = function (controller) {
-    }
-    _State.prototype.end = function (controller) {
-    }
+}
+_State.prototype.start = function (controller) {
+}
+_State.prototype.end = function (controller) {
+}
+_State.prototype.mouseReleased = function (controller) {
+}
+_State.prototype.mousePressed = function (controller) {
+}
+_State.prototype.count_down_done = function (controller) {
+}
+_State.prototype.mouseWheel = function (controller) {
 }
 var State = new _State()
 exports.State = State
@@ -588,73 +1037,129 @@ exports._State = _State
 function _Start () {
 }
 inherits(_Start, _State)
+var Start = new _Start()
 
 _Start.prototype.start = function (controller) {
-
     controller.changeState(ViewReady)
 }
 _Start.prototype.start.transitions = ['ViewReady']
-
-var Start = new _Start()
 exports.Start = Start
-
-function _Scale () {
-}
-inherits(_Scale, _State)
-
-_Scale.prototype.count_down_done = function (controller) {
-
-    controller.changeState(ViewReady)
-}
-_Scale.prototype.count_down_done.transitions = ['ViewReady']
-
-_Scale.prototype.mouseDragged = function (controller) {
-
-    controller.changeState(ViewReady)
-}
-_Scale.prototype.mouseDragged.transitions = ['ViewReady']
-
-var Scale = new _Scale()
-exports.Scale = Scale
-
-function _Pan () {
-}
-inherits(_Pan, _State)
-
-_Pan.prototype.count_down_done = function (controller) {
-
-    controller.changeState(ViewReady)
-}
-_Pan.prototype.count_down_done.transitions = ['ViewReady']
-
-_Pan.prototype.mouseWheel = function (controller) {
-
-    controller.changeState(ViewReady)
-}
-_Pan.prototype.mouseWheel.transitions = ['ViewReady']
-
-var Pan = new _Pan()
-exports.Pan = Pan
 
 function _ViewReady () {
 }
 inherits(_ViewReady, _State)
 
-_ViewReady.prototype.mouseWheel = function (controller) {
-
-    controller.changeState(Scale)
-}
-_ViewReady.prototype.mouseWheel.transitions = ['Scale']
+var ViewReady = new _ViewReady()
 
 _ViewReady.prototype.mouseDragged = function (controller) {
-
     controller.changeState(Pan)
+    controller.state.mouseDragged(controller)
 }
 _ViewReady.prototype.mouseDragged.transitions = ['Pan']
 
-var ViewReady = new _ViewReady()
+_ViewReady.prototype.mouseWheel = function (controller, event) {
+    controller.changeState(Scale)
+    controller.state.mouseWheel(controller, event)
+}
+_ViewReady.prototype.keyPressed = function (controller) {
+    console.log(key)
+    if (key === 'D') {
+        controller.application.debug = !controller.application.debug
+    }
+    if (key === 'M') {
+        controller.application.show_menu = !controller.application.show_menu
+    }
+    if (key === 'P') {
+        controller.application.show_pointer = !controller.application.show_pointer
+    }
+}
+_ViewReady.prototype.mouseWheel.transitions = ['Scale']
 exports.ViewReady = ViewReady
 
+function _Pan () {
+}
+inherits(_Pan, _State)
+
+var Pan = new _Pan()
+
+_Pan.prototype.start = function (controller) {
+    controller.application.mousePointer = controller.application.MoveMousePointer
+    controller.application.mousePressedX = mouseX
+    controller.application.mousePressedY = mouseY
+    controller.application.oldPanX = controller.application.panX
+    controller.application.oldPanY = controller.application.panY
+    controller.application.pointer_count_down = Math.floor(frameRate() / 2)
+}
+
+_Pan.prototype.end = function (controller) {
+    controller.application.mousePointer = controller.application.ArrowMousePointer
+}
+
+_Pan.prototype.mousePressed = function (controller) {
+    controller.application.mousePointer = controller.application.MoveMousePointer
+    controller.application.mousePressedX = mouseX
+    controller.application.mousePressedY = mouseY
+    controller.application.oldPanX = controller.application.panX
+    controller.application.oldPanY = controller.application.panY
+    controller.application.pointer_count_down = Math.floor(frameRate() / 2)
+}
+
+_Pan.prototype.mouseDragged = function (controller) {
+    controller.application.panX = (mouseX - controller.application.mousePressedX) + controller.application.oldPanX
+    controller.application.panY = (mouseY - controller.application.mousePressedY) + controller.application.oldPanY
+    controller.application.pointer_count_down = Math.floor(frameRate() / 2)
+}
+
+_Pan.prototype.mouseWheel = function (controller, event) {
+    controller.changeState(ViewReady)
+    controller.state.mouseWheel(controller, event)
+}
+_Pan.prototype.mouseWheel.transitions = ['ViewReady']
+
+_Pan.prototype.count_down_done = function (controller) {
+    controller.changeState(ViewReady)
+}
+_Pan.prototype.count_down_done.transitions = ['ViewReady']
+exports.Pan = Pan
+
+function _Scale () {
+}
+inherits(_Scale, _State)
+
+_Scale.prototype.start = function (controller) {
+    controller.application.mousePointer = controller.application.MagnifyingGlassMousePointer
+}
+
+_Scale.prototype.end = function (controller) {
+    controller.application.mousePointer = controller.application.ArrowMousePointer
+}
+
+_Scale.prototype.mouseWheel = function (controller, event) {
+    controller.application.mousePointer = controller.application.MagnifyingGlassMousePointer
+    controller.application.pointer_count_down = Math.floor(frameRate() / 2)
+    var delta = event.delta / 100
+    controller.application.scaleXY = controller.application.scaleXY + delta
+    if (controller.application.scaleXY < 0.2) {
+        controller.application.scaleXY = 0.2
+    }
+    if (controller.application.scaleXY > 10) {
+        controller.application.scaleXY = 10
+    }
+    controller.application.panX = mouseX - controller.application.scaleXY * controller.application.mousePX
+    controller.application.panY = mouseY - controller.application.scaleXY * controller.application.mousePY
+}
+_Scale.prototype.mouseDragged = function (controller) {
+    controller.changeState(ViewReady)
+    controller.state.mouseDragged(controller)
+}
+_Scale.prototype.mouseDragged.transitions = ['ViewReady']
+_Scale.prototype.count_down_done = function (controller) {
+    controller.changeState(ViewReady)
+}
+_Scale.prototype.count_down_done.transitions = ['ViewReady']
+
+var Scale = new _Scale()
+exports.Scale = Scale
 
 },{"inherits":6}],9:[function(require,module,exports){
 var inherits = require('inherits')

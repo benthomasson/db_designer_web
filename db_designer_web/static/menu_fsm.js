@@ -31,7 +31,7 @@ function _Load () {
 inherits(_Load, _State)
 
 _Load.prototype.start = function (controller) {
-
+    window.open('/static/upload.html', '_self')
     controller.changeState(MenuReady)
 }
 _Load.prototype.start.transitions = ['MenuReady']
@@ -101,6 +101,59 @@ _MenuReady.prototype.new_column_button = function (controller) {
 }
 _MenuReady.prototype.new_column_button.transitions = ['NewColumn']
 
+
+_MenuReady.prototype.mousePressed = function (controller) {
+    var widget = null
+    if (controller.application.show_menu) {
+        for (var i = 0; i < controller.application.active_widgets.length; i++) {
+            widget = controller.application.active_widgets[i]
+            if (mouseX > widget.left_extent() &&
+                    mouseX < widget.right_extent() &&
+                    mouseY > widget.top_extent() &&
+                    mouseY < widget.bottom_extent()) {
+                widget.mousePressed()
+                return
+            }
+        }
+    }
+    controller.next_controller.state.mousePressed(controller.next_controller)
+}
+
+
+_MenuReady.prototype.mouseReleased = function (controller) {
+    var widget = null
+    if (controller.application.show_menu) {
+        for (var i = 0; i < controller.application.active_widgets.length; i++) {
+            widget = controller.application.active_widgets[i]
+            if (mouseX > widget.left_extent() &&
+                    mouseX < widget.right_extent() &&
+                    mouseY > widget.top_extent() &&
+                    mouseY < widget.bottom_extent()) {
+                widget.mouseReleased()
+            }
+        }
+    }
+    controller.next_controller.state.mouseReleased(controller.next_controller)
+}
+
+_MenuReady.prototype.mouseWheel = function (controller, event) {
+    controller.next_controller.state.mouseWheel(controller.next_controller, event)
+}
+_MenuReady.prototype.mouseDragged = function (controller) {
+    controller.next_controller.state.mouseDragged(controller.next_controller)
+}
+_MenuReady.prototype.keyTyped = function (controller) {
+    controller.next_controller.state.keyTyped(controller.next_controller)
+}
+_MenuReady.prototype.keyPressed = function (controller) {
+    controller.next_controller.state.keyPressed(controller.next_controller)
+}
+_MenuReady.prototype.keyReleased = function (controller) {
+    controller.next_controller.state.keyReleased(controller.next_controller)
+}
+
+
+
 var MenuReady = new _MenuReady()
 exports.MenuReady = MenuReady
 
@@ -134,8 +187,14 @@ function _Save () {
 }
 inherits(_Save, _State)
 
-_Save.prototype.on_saved = function (controller) {
+_Save.prototype.start = function (controller) {
+    console.log(controller.application.exportDB())
+    controller.application.socket.emit('save', controller.application.exportDB())
+}
 
+_Save.prototype.on_saved = function (controller, message) {
+    console.log(message)
+    controller.application.last_saved_url = message.url
     controller.changeState(Saved)
 }
 _Save.prototype.on_saved.transitions = ['Saved']
@@ -148,7 +207,10 @@ function _Saved () {
 inherits(_Saved, _State)
 
 _Saved.prototype.start = function (controller) {
-
+    if (controller.application.last_saved_url != null) {
+        window.open(controller.application.last_saved_url)
+        controller.application.last_saved_url = null
+    }
     controller.changeState(MenuReady)
 }
 _Saved.prototype.start.transitions = ['MenuReady']

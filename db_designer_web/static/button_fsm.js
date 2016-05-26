@@ -2,7 +2,7 @@ var inherits = require('inherits')
 
 function Controller () {
     this.state = null
-
+    this.call_back = null
 }
 exports.Controller = Controller
 
@@ -17,10 +17,18 @@ Controller.prototype.changeState = function (state) {
     }
 }
 function _State () {
-    _State.prototype.start = function (controller) {
-    }
-    _State.prototype.end = function (controller) {
-    }
+}
+_State.prototype.start = function (controller) {
+}
+_State.prototype.end = function (controller) {
+}
+_State.prototype.mouseOut = function (controller) {
+}
+_State.prototype.mouseOver = function (controller) {
+}
+_State.prototype.mousePressed = function (controller) {
+}
+_State.prototype.mouseReleased = function (controller) {
 }
 var State = new _State()
 exports.State = State
@@ -31,7 +39,6 @@ function _NotPressed () {
 inherits(_NotPressed, _State)
 
 _NotPressed.prototype.mousePressed = function (controller) {
-
     controller.changeState(Pressed)
 }
 _NotPressed.prototype.mousePressed.transitions = ['Pressed']
@@ -44,7 +51,9 @@ function _Clicked () {
 inherits(_Clicked, _State)
 
 _Clicked.prototype.start = function (controller) {
-
+    if (controller.call_back) {
+        controller.call_back(controller)
+    }
     controller.changeState(NotPressed)
 }
 _Clicked.prototype.start.transitions = ['NotPressed']
@@ -56,14 +65,19 @@ function _Pressed () {
 }
 inherits(_Pressed, _State)
 
-_Pressed.prototype.mouseReleased = function (controller) {
+_Pressed.prototype.start = function (controller) {
+    controller.pressed = true
+}
+_Pressed.prototype.end = function (controller) {
+    controller.pressed = false
+}
 
+_Pressed.prototype.mouseReleased = function (controller) {
     controller.changeState(Clicked)
 }
 _Pressed.prototype.mouseReleased.transitions = ['Clicked']
 
 _Pressed.prototype.mouseOut = function (controller) {
-
     controller.changeState(NotPressed)
 }
 _Pressed.prototype.mouseOut.transitions = ['NotPressed']
