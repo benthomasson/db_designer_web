@@ -1,4 +1,5 @@
 var inherits = require('inherits')
+var models = require('./models.js')
 
 function Controller () {
     this.state = null
@@ -154,6 +155,11 @@ _NewTable.prototype.start = function (controller) {
 
 _NewTable.prototype.mousePressed = function (controller) {
     controller.application.mousePointer = controller.application.ArrowMousePointer
+    var new_table = new models.Table()
+    new_table.x = controller.application.mousePX
+    new_table.y = controller.application.mousePY
+    new_table.label = controller.application.NewTablePointer.label
+    controller.application.tables.push(new_table)
 
     controller.changeState(MenuReady)
 }

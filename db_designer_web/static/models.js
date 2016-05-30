@@ -19,8 +19,7 @@ function Application () {
     this.loop_count_down = 60
     this.db_to_load = null
     this.socket = null
-    this.states = []
-    this.transitions = []
+    this.tables = []
     this.panX = 0
     this.panY = 0
     this.oldPanX = 0
@@ -338,7 +337,7 @@ Table.prototype.add_empty_column = function () {
     }
 }
 Table.prototype.left_title_extent = function () {
-    return self.x
+    return this.x
 }
 
 Table.prototype.right_title_extent = function () {
@@ -368,6 +367,37 @@ Table.prototype.top_extent = function () {
 Table.prototype.bottom_extent = function () {
     return this.y + this.full_height
 }
+
+Table.prototype._calculate_width = function () {
+    textSize(this.text_size)
+    width = textWidth(this.name)
+    if (this.edit) {
+        width += 1
+    }
+    return width + 20
+}
+
+Table.prototype._calculate_height = function () {
+    return this.text_size + 30
+}
+
+Table.prototype.draw = function (controller) {
+    stroke(0)
+    strokeWeight(1)
+    fill(this.color)
+    this.width = this._calculate_width()
+    this.height = this._calculate_height()
+    this.height = this.text_size + 30
+    rect(this.x, this.y, this.width, this.height)
+    fill(settings.COLOR)
+    textSize(this.text_size)
+    if (this.edit) {
+        text(this.name + '_', this.x + 10, this.y + this.text_size + 10)
+    } else {
+        text(this.name, this.x + 10, this.y + this.text_size + 10)
+    }
+}
+
 exports.Table = Table
 
 function Column () {
@@ -383,5 +413,28 @@ function Column () {
     this.pk = false
     this.related_name = null
     this.text_size = settings.TEXT_SIZE
+}
+
+Column.prototype.is_selected = function (controller) {
+    return (controller.mousePX > this.left_extent() &&
+            controller.mousePX < this.right_extent() &&
+            controller.mousePY > this.top_extent() &&
+            controller.mousePY < this.bottom_extent())
+}
+
+Column.prototype.left_extent = function () {
+    return this.x
+}
+
+Column.prototype.right_extent = function () {
+    return this.x + this.width
+}
+
+Column.prototype.top_extent = function () {
+    return this.y
+}
+
+Column.prototype.bottom_extent = function () {
+    return this.y + this.height
 }
 exports.Column = Column
