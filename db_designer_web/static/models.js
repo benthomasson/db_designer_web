@@ -218,6 +218,10 @@ Application.prototype.validate = function (button) {
 }
 
 Application.prototype.draw_content = function (controller) {
+    var i = 0
+    for (i = 0; i < this.tables.length; i ++) {
+        this.tables[i].draw(controller)
+    }
 }
 
 Application.prototype.draw_menus = function (controller) {
@@ -304,9 +308,9 @@ function Table () {
     this.edit = false
     this.selected = false
     this.columns = []
-    this.color = 200
+    this.color = settings.FILL
     this.text_size = settings.TEXT_SIZE
-    this.name = null
+    this.name = ''
     this.x = 0
     this.y = 0
     this.width = 0
@@ -370,7 +374,7 @@ Table.prototype.bottom_extent = function () {
 
 Table.prototype._calculate_width = function () {
     textSize(this.text_size)
-    width = textWidth(this.name)
+    var width = textWidth(this.name)
     if (this.edit) {
         width += 1
     }
@@ -382,15 +386,19 @@ Table.prototype._calculate_height = function () {
 }
 
 Table.prototype.draw = function (controller) {
-    stroke(0)
     strokeWeight(1)
+    stroke(settings.COLOR)
     fill(this.color)
     this.width = this._calculate_width()
     this.height = this._calculate_height()
-    this.height = this.text_size + 30
+    //this.height = this.text_size + 30
+    //this.width = textWidth(this.name) + 22
     rect(this.x, this.y, this.width, this.height)
-    fill(settings.COLOR)
+    noStroke()
+    fill(settings.TEXT_COLOR)
     textSize(this.text_size)
+    text(this.name, this.x + 10, this.y + this.text_size + 10)
+    return
     if (this.edit) {
         text(this.name + '_', this.x + 10, this.y + this.text_size + 10)
     } else {
