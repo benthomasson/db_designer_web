@@ -1,0 +1,60 @@
+extends: standard
+plugins:
+  - standard
+globals:
+    io: true
+    noCursor: true
+    fill: true
+    background: true
+    text: true
+    frameRate: true
+    rect: true
+    stroke: true
+    strokeWeight: true
+    key: true
+    keyCode: true
+    mouseX: true
+    mouseY: true
+    pmouseX: true
+    pmouseY: true
+    windowWidth: true
+    windowHeight: true
+    resizeCanvas: true
+    createCanvas: true
+    scale: true
+    translate: true
+    mouseWheel: true
+    mouseButton: true
+    color: true
+    noStroke: true
+    TOP: true
+    LEFT: true
+    RIGHT: true
+    textAlign: true
+    textSize: true
+    textWidth: true
+    ellipse: true
+    line: true
+    push: true
+    pop: true
+    atan2: true
+    sqrt: true
+    rotate: true
+    triangle: true
+    CENTER: true
+    BASELINE: true
+    PI: true
+    noFill: true
+    width: true
+    height: true
+    BACKSPACE: true
+    ENTER: true
+    DELETE: true
+    RETURN: true
+    abs: true
+    clear: true
+    loop: true
+    noLoop: true
+    mouseMoved: true
+rules:
+    indent: ["error", 4]
