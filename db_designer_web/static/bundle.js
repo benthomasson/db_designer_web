@@ -92,7 +92,6 @@ var inherits = require('inherits')
 
 function Controller () {
     this.state = null
-
 }
 exports.Controller = Controller
 
@@ -136,7 +135,6 @@ function _Move () {
 inherits(_Move, _State)
 
 _Move.prototype.mouseReleased = function (controller) {
-
     controller.changeState(Selected)
 }
 _Move.prototype.mouseReleased.transitions = ['Selected']
@@ -149,19 +147,16 @@ function _Edit () {
 inherits(_Edit, _State)
 
 _Edit.prototype.mouseDragged = function (controller) {
-
     controller.changeState(Move)
 }
 _Edit.prototype.mouseDragged.transitions = ['Move']
 
 _Edit.prototype.keyTyped = function (controller) {
-
     controller.changeState(Selected)
 }
 _Edit.prototype.keyTyped.transitions = ['Selected']
 
 _Edit.prototype.mousePressed = function (controller) {
-
     controller.changeState(Selected)
 
     controller.changeState(Ready)
@@ -169,13 +164,11 @@ _Edit.prototype.mousePressed = function (controller) {
 _Edit.prototype.mousePressed.transitions = ['Selected', 'Ready']
 
 _Edit.prototype.handle_special_keys = function (controller) {
-
     controller.changeState(Selected)
 }
 _Edit.prototype.handle_special_keys.transitions = ['Selected']
 
 _Edit.prototype.keyPressed = function (controller) {
-
     controller.changeState(Selected)
 }
 _Edit.prototype.keyPressed.transitions = ['Selected']
@@ -188,22 +181,19 @@ function _Ready () {
 inherits(_Ready, _State)
 
 _Ready.prototype.mousePressed = function (controller) {
-
     controller.application.select_item()
     if (controller.application.selected_property != null) {
         controller.changeState(EditProperty)
     } else {
         controller.next_controller.state.mousePressed(controller.next_controller)
     }
+    // controller.changeState(SelectedColumn)
 
-    //controller.changeState(SelectedColumn)
+    // controller.changeState(SelectedForeignKey)
 
-    //controller.changeState(SelectedForeignKey)
-
-    //controller.changeState(Selected)
+    // controller.changeState(Selected)
 }
 _Ready.prototype.mousePressed.transitions = ['SelectedColumn', 'SelectedForeignKey', 'Selected', 'EditProperty']
-
 
 _Ready.prototype.mouseWheel = function (controller, event) {
     controller.next_controller.state.mouseWheel(controller.next_controller, event)
@@ -217,8 +207,6 @@ _Ready.prototype.mouseReleased = function (controller) {
     controller.next_controller.state.mouseReleased(controller.next_controller)
 }
 
-
-
 var Ready = new _Ready()
 exports.Ready = Ready
 
@@ -227,7 +215,6 @@ function _Selected () {
 inherits(_Selected, _State)
 
 _Selected.prototype.mouseDragged = function (controller) {
-
     controller.changeState(Ready)
 
     controller.changeState(Move)
@@ -235,7 +222,6 @@ _Selected.prototype.mouseDragged = function (controller) {
 _Selected.prototype.mouseDragged.transitions = ['Ready', 'Move']
 
 _Selected.prototype.mousePressed = function (controller) {
-
     controller.changeState(Ready)
 
     controller.changeState(Edit)
@@ -243,7 +229,6 @@ _Selected.prototype.mousePressed = function (controller) {
 _Selected.prototype.mousePressed.transitions = ['Ready', 'Edit']
 
 _Selected.prototype.keyPressed = function (controller) {
-
     controller.changeState(Ready)
 }
 _Selected.prototype.keyPressed.transitions = ['Ready']
@@ -256,7 +241,6 @@ function _Start () {
 inherits(_Start, _State)
 
 _Start.prototype.start = function (controller) {
-
     controller.changeState(Ready)
 }
 _Start.prototype.start.transitions = ['Ready']
@@ -269,7 +253,6 @@ function _SelectedForeignKey () {
 inherits(_SelectedForeignKey, _State)
 
 _SelectedForeignKey.prototype.mousePressed = function (controller) {
-
     controller.changeState(EditForeignKey)
 
     controller.changeState(Ready)
@@ -277,7 +260,6 @@ _SelectedForeignKey.prototype.mousePressed = function (controller) {
 _SelectedForeignKey.prototype.mousePressed.transitions = ['EditForeignKey', 'Ready']
 
 _SelectedForeignKey.prototype.keyPressed = function (controller) {
-
     controller.changeState(Ready)
 }
 _SelectedForeignKey.prototype.keyPressed.transitions = ['Ready']
@@ -290,19 +272,16 @@ function _EditForeignKey () {
 inherits(_EditForeignKey, _State)
 
 _EditForeignKey.prototype.mousePressed = function (controller) {
-
     controller.changeState(Ready)
 }
 _EditForeignKey.prototype.mousePressed.transitions = ['Ready']
 
 _EditForeignKey.prototype.handle_special_keys = function (controller) {
-
     controller.changeState(SelectedForeignKey)
 }
 _EditForeignKey.prototype.handle_special_keys.transitions = ['SelectedForeignKey']
 
 _EditForeignKey.prototype.keyPressed = function (controller) {
-
     controller.changeState(SelectedForeignKey)
 }
 _EditForeignKey.prototype.keyPressed.transitions = ['SelectedForeignKey']
@@ -315,19 +294,16 @@ function _EditColumn () {
 inherits(_EditColumn, _State)
 
 _EditColumn.prototype.mousePressed = function (controller) {
-
     controller.changeState(Ready)
 }
 _EditColumn.prototype.mousePressed.transitions = ['Ready']
 
 _EditColumn.prototype.handle_special_keys = function (controller) {
-
     controller.changeState(SelectedColumn)
 }
 _EditColumn.prototype.handle_special_keys.transitions = ['SelectedColumn']
 
 _EditColumn.prototype.keyPressed = function (controller) {
-
     controller.changeState(SelectedColumn)
 }
 _EditColumn.prototype.keyPressed.transitions = ['SelectedColumn']
@@ -395,7 +371,6 @@ function _SelectedColumn () {
 inherits(_SelectedColumn, _State)
 
 _SelectedColumn.prototype.mousePressed = function (controller) {
-
     controller.changeState(Ready)
 
     controller.changeState(EditColumn)
@@ -403,7 +378,6 @@ _SelectedColumn.prototype.mousePressed = function (controller) {
 _SelectedColumn.prototype.mousePressed.transitions = ['Ready', 'EditColumn']
 
 _SelectedColumn.prototype.keyPressed = function (controller) {
-
     controller.changeState(Ready)
 }
 _SelectedColumn.prototype.keyPressed.transitions = ['Ready']
@@ -425,7 +399,6 @@ var inherits = require('inherits')
 
 function Controller () {
     this.state = null
-
 }
 exports.Controller = Controller
 
@@ -467,7 +440,6 @@ function _NewColumn () {
 inherits(_NewColumn, _State)
 
 _NewColumn.prototype.mousePressed = function (controller) {
-
     controller.changeState(MenuReady)
 }
 _NewColumn.prototype.mousePressed.transitions = ['MenuReady']
@@ -480,9 +452,7 @@ function _NewForeignKey () {
 inherits(_NewForeignKey, _State)
 
 _NewForeignKey.prototype.mousePressed = function (controller) {
-
     controller.changeState(ConnectForeignKey)
-
     controller.changeState(MenuReady)
 }
 _NewForeignKey.prototype.mousePressed.transitions = ['ConnectForeignKey', 'MenuReady']
@@ -495,35 +465,29 @@ function _MenuReady () {
 inherits(_MenuReady, _State)
 
 _MenuReady.prototype.new_foreign_key_button = function (controller) {
-
     controller.changeState(NewForeignKey)
 }
 _MenuReady.prototype.new_foreign_key_button.transitions = ['NewForeignKey']
 
 _MenuReady.prototype.save_button = function (controller) {
-
     controller.changeState(Save)
 }
 _MenuReady.prototype.save_button.transitions = ['Save']
 
 _MenuReady.prototype.new_table_button = function (controller) {
-
     controller.changeState(NewTable)
 }
 _MenuReady.prototype.new_table_button.transitions = ['NewTable']
 
 _MenuReady.prototype.load_button = function (controller) {
-
     controller.changeState(Load)
 }
 _MenuReady.prototype.load_button.transitions = ['Load']
 
 _MenuReady.prototype.new_column_button = function (controller) {
-
     controller.changeState(NewColumn)
 }
 _MenuReady.prototype.new_column_button.transitions = ['NewColumn']
-
 
 _MenuReady.prototype.mousePressed = function (controller) {
     var widget = null
@@ -541,7 +505,6 @@ _MenuReady.prototype.mousePressed = function (controller) {
     }
     controller.next_controller.state.mousePressed(controller.next_controller)
 }
-
 
 _MenuReady.prototype.mouseReleased = function (controller) {
     var widget = null
@@ -575,8 +538,6 @@ _MenuReady.prototype.keyReleased = function (controller) {
     controller.next_controller.state.keyReleased(controller.next_controller)
 }
 
-
-
 var MenuReady = new _MenuReady()
 exports.MenuReady = MenuReady
 
@@ -584,7 +545,12 @@ function _NewTable () {
 }
 inherits(_NewTable, _State)
 
+_NewTable.prototype.start = function (controller) {
+    controller.application.mousePointer = controller.application.NewTablePointer
+}
+
 _NewTable.prototype.mousePressed = function (controller) {
+    controller.application.mousePointer = controller.application.ArrowMousePointer
 
     controller.changeState(MenuReady)
 }
@@ -598,7 +564,6 @@ function _Start () {
 inherits(_Start, _State)
 
 _Start.prototype.start = function (controller) {
-
     controller.changeState(MenuReady)
 }
 _Start.prototype.start.transitions = ['MenuReady']
@@ -646,7 +611,6 @@ function _ConnectForeignKey () {
 inherits(_ConnectForeignKey, _State)
 
 _ConnectForeignKey.prototype.mousePressed = function (controller) {
-
     controller.changeState(MenuReady)
 }
 _ConnectForeignKey.prototype.mousePressed.transitions = ['MenuReady']
@@ -701,8 +665,7 @@ function Application () {
     this.model = null
     this.app = null
     this.directory = null
-    this.NewStatePointer = new widgets.NewStatePointer()
-    this.NewTransitionPointer = new widgets.NewTransitionPointer()
+    this.NewTablePointer = new widgets.NewTablePointer()
     this.MoveMousePointer = new widgets.MoveMousePointer()
     this.MagnifyingGlassMousePointer = new widgets.MagnifyingGlassMousePointer()
     this.ArrowMousePointer = new widgets.ArrowMousePointer()
@@ -798,7 +761,6 @@ Application.prototype.get_state_by_name = function (name) {
 }
 
 Application.prototype.load_db = function (db_to_load) {
-
     console.log(db_to_load)
 
     if (typeof db_to_load.panX !== 'undefined') {
@@ -815,7 +777,6 @@ Application.prototype.load_db = function (db_to_load) {
         this.app = db_to_load.app
         this.app_property_field.label = db_to_load.app
     }
-
 }
 
 Application.prototype.on_saved = function (message) {
@@ -833,7 +794,6 @@ Application.prototype.scaleAndPan = function () {
     translate(this.panX, this.panY)
     scale(this.scaleXY)
 }
-
 
 Application.prototype.select_item = function () {
     this.clear_selections()
@@ -962,6 +922,60 @@ Application.prototype.keyReleased = function () {
     this.menu_controller.state.keyReleased(this.menu_controller)
 }
 exports.Application = Application
+
+function Table () {
+    this.edit = false
+    this.selected = false
+    this.columns = []
+    this.color = 200
+    this.text_size = settings.TEXT_SIZE
+    this.name = null
+    this.x = 0
+    this.y = 0
+    this.width = 0
+    this.height = 0
+    this.full_height = 0
+    this.external = false
+    this.extra = false
+    this.view = false
+    this.natural_key = null
+    this.natural_keys = []
+    this.display = null
+    this.ordering = []
+}
+Table.prototype.is_selected = function (controller) {
+    return (controller.mousePX > this.left_extent() &&
+            controller.mousePX < this.right_extent() &&
+            controller.mousePY > this.top_extent() &&
+            controller.mousePY < this.bottom_extent())
+}
+Table.prototype.add_empty_column = function () {
+    var i = 0
+    var all_names = true
+    for (i = 0; i < this.columns.length; i++) {
+        all_names = all_names && this.columns[i]
+    }
+    if (all_names) {
+        this.columns.push(new Column(this))
+    }
+}
+exports.Table = Table
+
+function Column () {
+    this.table = null
+    this.connectors = []
+    this.x = 0
+    this.y = 0
+    this.edit = false
+    this.name = ''
+    this.ref = null
+    this.width = 100
+    this.height = 100
+    this.pk = false
+    this.related_name = null
+    this.text_size = settings.TEXT_SIZE
+}
+exports.Column = Column
 
 },{"./fsm.js":2,"./menu_fsm.js":4,"./settings.js":7,"./view_fsm.js":8,"./widgets.js":9}],6:[function(require,module,exports){
 if (typeof Object.create === 'function') {
@@ -1447,47 +1461,23 @@ ArrowMousePointer.prototype.draw = function () {
 }
 exports.ArrowMousePointer = ArrowMousePointer
 
-function NewStatePointer () {
+function NewTablePointer () {
     this.size = 100
-    this.label = 'New'
+    this.label = 'New Table'
 }
 
-NewStatePointer.prototype.draw = function (application) {
+NewTablePointer.prototype.draw = function (application) {
     var x = mouseX
     var y = mouseY
     stroke(settings.COLOR)
     fill(settings.FILL)
-    ellipse(x, y, this.size * application.scaleXY, this.size * application.scaleXY)
+    rect(x, y, this.size * application.scaleXY, settings.TEXT_SIZE * application.scaleXY + 30)
     noStroke()
     fill(settings.COLOR)
     textSize(settings.TEXT_SIZE * application.scaleXY)
-    text(this.label, x - textWidth(this.label) / 2, y)
+    text(this.label, x + 10, y + settings.TEXT_SIZE * application.scaleXY + 10)
 }
-exports.NewStatePointer = NewStatePointer
-
-function NewTransitionPointer () {
-    this.size = 40
-    this.color = '#5A5A5A'
-}
-
-NewTransitionPointer.prototype.draw = function (application) {
-    var x = mouseX
-    var y = mouseY
-    strokeWeight(2)
-    noFill()
-    stroke(this.color)
-    push()
-    translate(x, y)
-    rotate(2 * PI / 3)
-    line(this.size, 0, 0, 0)
-    pop()
-    push()
-    translate(x, y)
-    line(-this.size / 5, 0, this.size / 5, 0)
-    line(0, -this.size / 5, 0, this.size / 5)
-    pop()
-}
-exports.NewTransitionPointer = NewTransitionPointer
+exports.NewTablePointer = NewTablePointer
 
 function TextField (x, y, label, text_size, size, color, fill, pressed_color, call_back) {
     this.x = x

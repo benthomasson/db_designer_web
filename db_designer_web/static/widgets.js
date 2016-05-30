@@ -283,47 +283,23 @@ ArrowMousePointer.prototype.draw = function () {
 }
 exports.ArrowMousePointer = ArrowMousePointer
 
-function NewStatePointer () {
+function NewTablePointer () {
     this.size = 100
-    this.label = 'New'
+    this.label = 'New Table'
 }
 
-NewStatePointer.prototype.draw = function (application) {
+NewTablePointer.prototype.draw = function (application) {
     var x = mouseX
     var y = mouseY
     stroke(settings.COLOR)
     fill(settings.FILL)
-    ellipse(x, y, this.size * application.scaleXY, this.size * application.scaleXY)
+    rect(x, y, this.size * application.scaleXY, settings.TEXT_SIZE * application.scaleXY + 30)
     noStroke()
     fill(settings.COLOR)
     textSize(settings.TEXT_SIZE * application.scaleXY)
-    text(this.label, x - textWidth(this.label) / 2, y)
+    text(this.label, x + 10, y + settings.TEXT_SIZE * application.scaleXY + 10)
 }
-exports.NewStatePointer = NewStatePointer
-
-function NewTransitionPointer () {
-    this.size = 40
-    this.color = '#5A5A5A'
-}
-
-NewTransitionPointer.prototype.draw = function (application) {
-    var x = mouseX
-    var y = mouseY
-    strokeWeight(2)
-    noFill()
-    stroke(this.color)
-    push()
-    translate(x, y)
-    rotate(2 * PI / 3)
-    line(this.size, 0, 0, 0)
-    pop()
-    push()
-    translate(x, y)
-    line(-this.size / 5, 0, this.size / 5, 0)
-    line(0, -this.size / 5, 0, this.size / 5)
-    pop()
-}
-exports.NewTransitionPointer = NewTransitionPointer
+exports.NewTablePointer = NewTablePointer
 
 function TextField (x, y, label, text_size, size, color, fill, pressed_color, call_back) {
     this.x = x

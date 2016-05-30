@@ -2,7 +2,6 @@ var inherits = require('inherits')
 
 function Controller () {
     this.state = null
-
 }
 exports.Controller = Controller
 
@@ -44,7 +43,6 @@ function _NewColumn () {
 inherits(_NewColumn, _State)
 
 _NewColumn.prototype.mousePressed = function (controller) {
-
     controller.changeState(MenuReady)
 }
 _NewColumn.prototype.mousePressed.transitions = ['MenuReady']
@@ -57,9 +55,7 @@ function _NewForeignKey () {
 inherits(_NewForeignKey, _State)
 
 _NewForeignKey.prototype.mousePressed = function (controller) {
-
     controller.changeState(ConnectForeignKey)
-
     controller.changeState(MenuReady)
 }
 _NewForeignKey.prototype.mousePressed.transitions = ['ConnectForeignKey', 'MenuReady']
@@ -72,35 +68,29 @@ function _MenuReady () {
 inherits(_MenuReady, _State)
 
 _MenuReady.prototype.new_foreign_key_button = function (controller) {
-
     controller.changeState(NewForeignKey)
 }
 _MenuReady.prototype.new_foreign_key_button.transitions = ['NewForeignKey']
 
 _MenuReady.prototype.save_button = function (controller) {
-
     controller.changeState(Save)
 }
 _MenuReady.prototype.save_button.transitions = ['Save']
 
 _MenuReady.prototype.new_table_button = function (controller) {
-
     controller.changeState(NewTable)
 }
 _MenuReady.prototype.new_table_button.transitions = ['NewTable']
 
 _MenuReady.prototype.load_button = function (controller) {
-
     controller.changeState(Load)
 }
 _MenuReady.prototype.load_button.transitions = ['Load']
 
 _MenuReady.prototype.new_column_button = function (controller) {
-
     controller.changeState(NewColumn)
 }
 _MenuReady.prototype.new_column_button.transitions = ['NewColumn']
-
 
 _MenuReady.prototype.mousePressed = function (controller) {
     var widget = null
@@ -118,7 +108,6 @@ _MenuReady.prototype.mousePressed = function (controller) {
     }
     controller.next_controller.state.mousePressed(controller.next_controller)
 }
-
 
 _MenuReady.prototype.mouseReleased = function (controller) {
     var widget = null
@@ -152,8 +141,6 @@ _MenuReady.prototype.keyReleased = function (controller) {
     controller.next_controller.state.keyReleased(controller.next_controller)
 }
 
-
-
 var MenuReady = new _MenuReady()
 exports.MenuReady = MenuReady
 
@@ -161,7 +148,12 @@ function _NewTable () {
 }
 inherits(_NewTable, _State)
 
+_NewTable.prototype.start = function (controller) {
+    controller.application.mousePointer = controller.application.NewTablePointer
+}
+
 _NewTable.prototype.mousePressed = function (controller) {
+    controller.application.mousePointer = controller.application.ArrowMousePointer
 
     controller.changeState(MenuReady)
 }
@@ -175,7 +167,6 @@ function _Start () {
 inherits(_Start, _State)
 
 _Start.prototype.start = function (controller) {
-
     controller.changeState(MenuReady)
 }
 _Start.prototype.start.transitions = ['MenuReady']
@@ -223,7 +214,6 @@ function _ConnectForeignKey () {
 inherits(_ConnectForeignKey, _State)
 
 _ConnectForeignKey.prototype.mousePressed = function (controller) {
-
     controller.changeState(MenuReady)
 }
 _ConnectForeignKey.prototype.mousePressed.transitions = ['MenuReady']

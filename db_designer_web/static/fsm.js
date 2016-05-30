@@ -2,7 +2,6 @@ var inherits = require('inherits')
 
 function Controller () {
     this.state = null
-
 }
 exports.Controller = Controller
 
@@ -46,7 +45,6 @@ function _Move () {
 inherits(_Move, _State)
 
 _Move.prototype.mouseReleased = function (controller) {
-
     controller.changeState(Selected)
 }
 _Move.prototype.mouseReleased.transitions = ['Selected']
@@ -59,19 +57,16 @@ function _Edit () {
 inherits(_Edit, _State)
 
 _Edit.prototype.mouseDragged = function (controller) {
-
     controller.changeState(Move)
 }
 _Edit.prototype.mouseDragged.transitions = ['Move']
 
 _Edit.prototype.keyTyped = function (controller) {
-
     controller.changeState(Selected)
 }
 _Edit.prototype.keyTyped.transitions = ['Selected']
 
 _Edit.prototype.mousePressed = function (controller) {
-
     controller.changeState(Selected)
 
     controller.changeState(Ready)
@@ -79,13 +74,11 @@ _Edit.prototype.mousePressed = function (controller) {
 _Edit.prototype.mousePressed.transitions = ['Selected', 'Ready']
 
 _Edit.prototype.handle_special_keys = function (controller) {
-
     controller.changeState(Selected)
 }
 _Edit.prototype.handle_special_keys.transitions = ['Selected']
 
 _Edit.prototype.keyPressed = function (controller) {
-
     controller.changeState(Selected)
 }
 _Edit.prototype.keyPressed.transitions = ['Selected']
@@ -98,22 +91,19 @@ function _Ready () {
 inherits(_Ready, _State)
 
 _Ready.prototype.mousePressed = function (controller) {
-
     controller.application.select_item()
     if (controller.application.selected_property != null) {
         controller.changeState(EditProperty)
     } else {
         controller.next_controller.state.mousePressed(controller.next_controller)
     }
+    // controller.changeState(SelectedColumn)
 
-    //controller.changeState(SelectedColumn)
+    // controller.changeState(SelectedForeignKey)
 
-    //controller.changeState(SelectedForeignKey)
-
-    //controller.changeState(Selected)
+    // controller.changeState(Selected)
 }
 _Ready.prototype.mousePressed.transitions = ['SelectedColumn', 'SelectedForeignKey', 'Selected', 'EditProperty']
-
 
 _Ready.prototype.mouseWheel = function (controller, event) {
     controller.next_controller.state.mouseWheel(controller.next_controller, event)
@@ -127,8 +117,6 @@ _Ready.prototype.mouseReleased = function (controller) {
     controller.next_controller.state.mouseReleased(controller.next_controller)
 }
 
-
-
 var Ready = new _Ready()
 exports.Ready = Ready
 
@@ -137,7 +125,6 @@ function _Selected () {
 inherits(_Selected, _State)
 
 _Selected.prototype.mouseDragged = function (controller) {
-
     controller.changeState(Ready)
 
     controller.changeState(Move)
@@ -145,7 +132,6 @@ _Selected.prototype.mouseDragged = function (controller) {
 _Selected.prototype.mouseDragged.transitions = ['Ready', 'Move']
 
 _Selected.prototype.mousePressed = function (controller) {
-
     controller.changeState(Ready)
 
     controller.changeState(Edit)
@@ -153,7 +139,6 @@ _Selected.prototype.mousePressed = function (controller) {
 _Selected.prototype.mousePressed.transitions = ['Ready', 'Edit']
 
 _Selected.prototype.keyPressed = function (controller) {
-
     controller.changeState(Ready)
 }
 _Selected.prototype.keyPressed.transitions = ['Ready']
@@ -166,7 +151,6 @@ function _Start () {
 inherits(_Start, _State)
 
 _Start.prototype.start = function (controller) {
-
     controller.changeState(Ready)
 }
 _Start.prototype.start.transitions = ['Ready']
@@ -179,7 +163,6 @@ function _SelectedForeignKey () {
 inherits(_SelectedForeignKey, _State)
 
 _SelectedForeignKey.prototype.mousePressed = function (controller) {
-
     controller.changeState(EditForeignKey)
 
     controller.changeState(Ready)
@@ -187,7 +170,6 @@ _SelectedForeignKey.prototype.mousePressed = function (controller) {
 _SelectedForeignKey.prototype.mousePressed.transitions = ['EditForeignKey', 'Ready']
 
 _SelectedForeignKey.prototype.keyPressed = function (controller) {
-
     controller.changeState(Ready)
 }
 _SelectedForeignKey.prototype.keyPressed.transitions = ['Ready']
@@ -200,19 +182,16 @@ function _EditForeignKey () {
 inherits(_EditForeignKey, _State)
 
 _EditForeignKey.prototype.mousePressed = function (controller) {
-
     controller.changeState(Ready)
 }
 _EditForeignKey.prototype.mousePressed.transitions = ['Ready']
 
 _EditForeignKey.prototype.handle_special_keys = function (controller) {
-
     controller.changeState(SelectedForeignKey)
 }
 _EditForeignKey.prototype.handle_special_keys.transitions = ['SelectedForeignKey']
 
 _EditForeignKey.prototype.keyPressed = function (controller) {
-
     controller.changeState(SelectedForeignKey)
 }
 _EditForeignKey.prototype.keyPressed.transitions = ['SelectedForeignKey']
@@ -225,19 +204,16 @@ function _EditColumn () {
 inherits(_EditColumn, _State)
 
 _EditColumn.prototype.mousePressed = function (controller) {
-
     controller.changeState(Ready)
 }
 _EditColumn.prototype.mousePressed.transitions = ['Ready']
 
 _EditColumn.prototype.handle_special_keys = function (controller) {
-
     controller.changeState(SelectedColumn)
 }
 _EditColumn.prototype.handle_special_keys.transitions = ['SelectedColumn']
 
 _EditColumn.prototype.keyPressed = function (controller) {
-
     controller.changeState(SelectedColumn)
 }
 _EditColumn.prototype.keyPressed.transitions = ['SelectedColumn']
@@ -305,7 +281,6 @@ function _SelectedColumn () {
 inherits(_SelectedColumn, _State)
 
 _SelectedColumn.prototype.mousePressed = function (controller) {
-
     controller.changeState(Ready)
 
     controller.changeState(EditColumn)
@@ -313,7 +288,6 @@ _SelectedColumn.prototype.mousePressed = function (controller) {
 _SelectedColumn.prototype.mousePressed.transitions = ['Ready', 'EditColumn']
 
 _SelectedColumn.prototype.keyPressed = function (controller) {
-
     controller.changeState(Ready)
 }
 _SelectedColumn.prototype.keyPressed.transitions = ['Ready']

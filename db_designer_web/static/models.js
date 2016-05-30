@@ -43,8 +43,7 @@ function Application () {
     this.model = null
     this.app = null
     this.directory = null
-    this.NewStatePointer = new widgets.NewStatePointer()
-    this.NewTransitionPointer = new widgets.NewTransitionPointer()
+    this.NewTablePointer = new widgets.NewTablePointer()
     this.MoveMousePointer = new widgets.MoveMousePointer()
     this.MagnifyingGlassMousePointer = new widgets.MagnifyingGlassMousePointer()
     this.ArrowMousePointer = new widgets.ArrowMousePointer()
@@ -140,7 +139,6 @@ Application.prototype.get_state_by_name = function (name) {
 }
 
 Application.prototype.load_db = function (db_to_load) {
-
     console.log(db_to_load)
 
     if (typeof db_to_load.panX !== 'undefined') {
@@ -157,7 +155,6 @@ Application.prototype.load_db = function (db_to_load) {
         this.app = db_to_load.app
         this.app_property_field.label = db_to_load.app
     }
-
 }
 
 Application.prototype.on_saved = function (message) {
@@ -175,7 +172,6 @@ Application.prototype.scaleAndPan = function () {
     translate(this.panX, this.panY)
     scale(this.scaleXY)
 }
-
 
 Application.prototype.select_item = function () {
     this.clear_selections()
@@ -304,3 +300,88 @@ Application.prototype.keyReleased = function () {
     this.menu_controller.state.keyReleased(this.menu_controller)
 }
 exports.Application = Application
+
+function Table () {
+    this.edit = false
+    this.selected = false
+    this.columns = []
+    this.color = 200
+    this.text_size = settings.TEXT_SIZE
+    this.name = null
+    this.x = 0
+    this.y = 0
+    this.width = 0
+    this.height = 0
+    this.full_height = 0
+    this.external = false
+    this.extra = false
+    this.view = false
+    this.natural_key = null
+    this.natural_keys = []
+    this.display = null
+    this.ordering = []
+}
+Table.prototype.is_selected = function (controller) {
+    return (controller.mousePX > this.left_extent() &&
+            controller.mousePX < this.right_extent() &&
+            controller.mousePY > this.top_extent() &&
+            controller.mousePY < this.bottom_extent())
+}
+Table.prototype.add_empty_column = function () {
+    var i = 0
+    var all_names = true
+    for (i = 0; i < this.columns.length; i++) {
+        all_names = all_names && this.columns[i]
+    }
+    if (all_names) {
+        this.columns.push(new Column(this))
+    }
+}
+Table.prototype.left_title_extent = function () {
+    return self.x
+}
+
+Table.prototype.right_title_extent = function () {
+    return this.x + this.width
+}
+
+Table.prototype.top_title_extent = function () {
+    return this.y
+}
+
+Table.prototype.bottom_title_extent = function () {
+    return this.y + this.height
+}
+
+Table.prototype.left_extent = function () {
+    return this.x
+}
+
+Table.prototype.right_extent = function () {
+    return this.x + this.width
+}
+
+Table.prototype.top_extent = function () {
+    return this.y
+}
+
+Table.prototype.bottom_extent = function () {
+    return this.y + this.full_height
+}
+exports.Table = Table
+
+function Column () {
+    this.table = null
+    this.connectors = []
+    this.x = 0
+    this.y = 0
+    this.edit = false
+    this.name = ''
+    this.ref = null
+    this.width = 100
+    this.height = 100
+    this.pk = false
+    this.related_name = null
+    this.text_size = settings.TEXT_SIZE
+}
+exports.Column = Column

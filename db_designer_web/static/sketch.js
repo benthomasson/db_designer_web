@@ -127,4 +127,5 @@ function keyReleased () {
     this.keyTyped = keyTyped
     this.keyPressed = keyPressed
     this.keyReleased = keyReleased
+    this.mouseMoved = mouseMoved
 }())
