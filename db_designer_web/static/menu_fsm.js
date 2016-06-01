@@ -158,7 +158,7 @@ _NewTable.prototype.mousePressed = function (controller) {
     var new_table = new models.Table()
     new_table.x = controller.application.mousePX
     new_table.y = controller.application.mousePY
-    new_table.name = controller.application.NewTablePointer.label
+    new_table.label = controller.application.NewTablePointer.label
     controller.application.tables.push(new_table)
 
     controller.changeState(MenuReady)

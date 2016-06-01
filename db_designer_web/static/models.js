@@ -31,8 +31,8 @@ function Application () {
     this.lastKeyCode = 0
     this.state = null
     this.wheel = null
-    this.selected_state = null
-    this.selected_transition = null
+    this.selected_table = null
+    this.selected_column = null
     this.selected_property = null
     this.debug = true
     this.show_menu = true
@@ -177,15 +177,41 @@ Application.prototype.select_item = function () {
     if (this.select_property()) {
         return true
     }
+    if (this.select_table()) {
+        return true
+    }
 }
 
 Application.prototype.clear_selections = function () {
     var i = 0
     var property = null
+    var table = null
     for (i = 0; i < this.properties.length; i++) {
         property = this.properties[i]
         property.selected = false
     }
+    for (i = 0; i < this.tables.length; i++) {
+        table = this.tables[i]
+        table.selected = false
+    }
+}
+
+Application.prototype.select_table = function () {
+    this.selected_table = null
+    var i = 0
+    var table = null
+    for (i = 0; i < this.tables.length; i++) {
+        table = this.tables[i]
+        if (table.is_selected(this)) {
+            console.log('selected table')
+            table.selected = true
+            this.selected_table = table
+            return true
+        } else {
+            table.selected = false
+        }
+    }
+    return false
 }
 
 Application.prototype.select_property = function () {
@@ -219,7 +245,7 @@ Application.prototype.validate = function (button) {
 
 Application.prototype.draw_content = function (controller) {
     var i = 0
-    for (i = 0; i < this.tables.length; i ++) {
+    for (i = 0; i < this.tables.length; i++) {
         this.tables[i].draw(controller)
     }
 }
@@ -310,7 +336,7 @@ function Table () {
     this.columns = []
     this.color = settings.FILL
     this.text_size = settings.TEXT_SIZE
-    this.name = ''
+    this.label = ''
     this.x = 0
     this.y = 0
     this.width = 0
@@ -325,10 +351,18 @@ function Table () {
     this.ordering = []
 }
 Table.prototype.is_selected = function (controller) {
-    return (controller.mousePX > this.left_extent() &&
-            controller.mousePX < this.right_extent() &&
-            controller.mousePY > this.top_extent() &&
-            controller.mousePY < this.bottom_extent())
+    console.log(controller.mousePX)
+    console.log(controller.mousePY)
+    console.log(this.left_extent())
+    console.log(this.right_extent())
+    console.log(this.top_extent())
+    console.log(this.bottom_extent())
+    var selected = (controller.mousePX > this.left_extent() &&
+                    controller.mousePX < this.right_extent() &&
+                    controller.mousePY > this.top_extent() &&
+                    controller.mousePY < this.bottom_extent())
+    console.log(selected)
+    return selected
 }
 Table.prototype.add_empty_column = function () {
     var i = 0
@@ -369,12 +403,12 @@ Table.prototype.top_extent = function () {
 }
 
 Table.prototype.bottom_extent = function () {
-    return this.y + this.full_height
+    return this.y + this._calculate_height()
 }
 
 Table.prototype._calculate_width = function () {
     textSize(this.text_size)
-    var width = textWidth(this.name)
+    var width = textWidth(this.label)
     if (this.edit) {
         width += 1
     }
@@ -391,18 +425,23 @@ Table.prototype.draw = function (controller) {
     fill(this.color)
     this.width = this._calculate_width()
     this.height = this._calculate_height()
-    //this.height = this.text_size + 30
-    //this.width = textWidth(this.name) + 22
     rect(this.x, this.y, this.width, this.height)
     noStroke()
     fill(settings.TEXT_COLOR)
     textSize(this.text_size)
-    text(this.name, this.x + 10, this.y + this.text_size + 10)
-    return
     if (this.edit) {
-        text(this.name + '_', this.x + 10, this.y + this.text_size + 10)
+        text(this.label + '_', this.x + 10, this.y + this.text_size + 10)
     } else {
-        text(this.name, this.x + 10, this.y + this.text_size + 10)
+        text(this.label, this.x + 10, this.y + this.text_size + 10)
+    }
+
+    if (this.selected) {
+        strokeWeight(2)
+        noFill()
+        stroke('#66FFFF')
+        rect(this.x, this.y, this.width, this.height)
+        strokeWeight(1)
+        stroke(0)
     }
 }
 
@@ -414,7 +453,7 @@ function Column () {
     this.x = 0
     this.y = 0
     this.edit = false
-    this.name = ''
+    this.label = ''
     this.ref = null
     this.width = 100
     this.height = 100

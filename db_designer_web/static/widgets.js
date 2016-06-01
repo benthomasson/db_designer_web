@@ -293,7 +293,7 @@ NewTablePointer.prototype.draw = function (application) {
     var y = mouseY
     stroke(settings.COLOR)
     fill(settings.FILL)
-    rect(x, y, this.size * application.scaleXY, (settings.TEXT_SIZE + 30)* application.scaleXY)
+    rect(x, y, this.size * application.scaleXY, (settings.TEXT_SIZE + 30) * application.scaleXY)
     noStroke()
     fill(settings.COLOR)
     textSize(settings.TEXT_SIZE * application.scaleXY)

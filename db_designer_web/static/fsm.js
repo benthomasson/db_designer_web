@@ -61,26 +61,57 @@ _Edit.prototype.mouseDragged = function (controller) {
 }
 _Edit.prototype.mouseDragged.transitions = ['Move']
 
+_Edit.prototype.start = function (controller) {
+    controller.application.selected_table.edit = true
+}
+
+_Edit.prototype.end = function (controller) {
+    controller.application.selected_table.edit = false
+}
+
 _Edit.prototype.keyTyped = function (controller) {
-    controller.changeState(Selected)
+    if (this.handle_special_keys(controller)) {
+        // do nothing
+    } else {
+        controller.application.selected_table.label += key
+    }
 }
 _Edit.prototype.keyTyped.transitions = ['Selected']
 
 _Edit.prototype.mousePressed = function (controller) {
-    controller.changeState(Selected)
-
-    controller.changeState(Ready)
+    if (controller.application.selected_table.is_selected(controller.application)) {
+        controller.changeState(Selected)
+    } else {
+        controller.changeState(Ready)
+        controller.state.mousePressed(controller)
+    }
 }
 _Edit.prototype.mousePressed.transitions = ['Selected', 'Ready']
 
 _Edit.prototype.handle_special_keys = function (controller) {
     controller.changeState(Selected)
 }
+
+_Edit.prototype.handle_special_keys = function (controller) {
+    if (keyCode === RETURN) {
+        controller.changeState(Selected)
+        return true
+    } else if (keyCode === ENTER) {
+        controller.changeState(Selected)
+        return true
+    } else if (keyCode === BACKSPACE) {
+        controller.application.selected_table.label = controller.application.selected_table.label.substring(0, controller.application.selected_table.label.length - 1)
+        return true
+    } else if (keyCode === DELETE) {
+        controller.application.selected_table.label = controller.application.selected_table.label.substring(0, controller.application.selected_table.label.length - 1)
+        return true
+    } else {
+        return false
+    }
+}
 _Edit.prototype.handle_special_keys.transitions = ['Selected']
 
-_Edit.prototype.keyPressed = function (controller) {
-    controller.changeState(Selected)
-}
+_Edit.prototype.keyPressed = _Edit.prototype.handle_special_keys
 _Edit.prototype.keyPressed.transitions = ['Selected']
 
 var Edit = new _Edit()
@@ -94,6 +125,10 @@ _Ready.prototype.mousePressed = function (controller) {
     controller.application.select_item()
     if (controller.application.selected_property != null) {
         controller.changeState(EditProperty)
+    } else if (controller.application.selected_column != null) {
+        controller.changeState(SelectedColumn)
+    } else if (controller.application.selected_table != null) {
+        controller.changeState(Selected)
     } else {
         controller.next_controller.state.mousePressed(controller.next_controller)
     }
@@ -132,9 +167,16 @@ _Selected.prototype.mouseDragged = function (controller) {
 _Selected.prototype.mouseDragged.transitions = ['Ready', 'Move']
 
 _Selected.prototype.mousePressed = function (controller) {
-    controller.changeState(Ready)
-
-    controller.changeState(Edit)
+    if (controller.application.selected_table === null) {
+        controller.changeState(Ready)
+        controller.mousePressed(controller)
+    }
+    if (controller.application.selected_table.is_selected(controller.application)) {
+        controller.changeState(Edit)
+    } else {
+        controller.changeState(Ready)
+        controller.state.mousePressed(controller)
+    }
 }
 _Selected.prototype.mousePressed.transitions = ['Ready', 'Edit']
 
@@ -282,8 +324,9 @@ inherits(_SelectedColumn, _State)
 
 _SelectedColumn.prototype.mousePressed = function (controller) {
     controller.changeState(Ready)
+    controller.state.mousePressed(controller)
 
-    controller.changeState(EditColumn)
+    // controller.changeState(EditColumn)
 }
 _SelectedColumn.prototype.mousePressed.transitions = ['Ready', 'EditColumn']
 
